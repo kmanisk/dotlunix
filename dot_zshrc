@@ -647,8 +647,86 @@ unset _starship_cache _starship_bin _fzf_cache _fzf_bin
 # FIX: removed the copy-pasted bash zoxide block above; this one line replaces it.
 eval "$(zoxide init zsh --cmd cd)"
 
-# --- Chez (user dotfile/config loader) ---
-[[ -f "$HOME/chez.zsh" ]] && source "$HOME/chez.zsh"
+# -----------------------------------------------------------------------------
+# CHEZMOI HELPERS (inlined from chez.zsh)
+# -----------------------------------------------------------------------------
+
+# Show chezmoi status
+st() { chezmoi status }
+
+# Show managed files
+chm() { chezmoi managed }
+
+# Add a specific path
+cadd() {
+    local path="$1"
+    if [[ -z "$path" ]]; then
+        echo "Usage: cadd <path>"
+        return 1
+    fi
+    chezmoi add "$path"
+}
+
+# Forget deleted files (DA)
+dfor() {
+    local deleted_files
+    deleted_files=$(chezmoi status | grep '^DA' | awk '{print $2}')
+    for file in ${(f)deleted_files}; do
+        local absolute_path="$HOME/$file"
+        echo "Forgetting $absolute_path"
+        chezmoi forget "$absolute_path"
+    done
+}
+
+# Add modified or added files (MM, A)
+madd() {
+    local changed_files
+    changed_files=$(chezmoi status | grep -E '^(MM|A)' | awk '{print $2}')
+    for file in ${(f)changed_files}; do
+        local absolute_path="$HOME/$file"
+        echo "Adding $absolute_path"
+        chezmoi add "$absolute_path"
+    done
+}
+
+# Push all changes to git
+dp() {
+    echo "Starting automation..."
+    local repo="$HOME/.local/share/chezmoi"
+    cd "$repo" || return 1
+    local branch
+    branch=$(git branch --show-current)
+    if [[ -z "$branch" ]]; then
+        echo "Error: Could not detect current branch"
+        cd "$HOME"
+        return 1
+    fi
+    git add .
+    if ! git diff --cached --quiet; then
+        git commit -m "chezmoi: update dotfiles"
+    else
+        echo "No changes to commit"
+    fi
+    git push -u origin "$branch"
+    cd "$HOME" || return 1
+}
+
+# Full sync: forget deleted + add changed + push
+dall() {
+    echo "Changes Done..."
+    st
+    echo
+    echo "Adding all the changes to dotfiles repo..."
+    if chezmoi status | grep -q '^DA'; then
+        echo "Deleting removed files from dotfiles repo..."
+        dfor
+        echo
+    fi
+    madd
+    echo
+    echo "Pushing everything..."
+    dp
+}
 
 # -----------------------------------------------------------------------------
 # [7] Auto login INTO UWSM HYPRLAND WITH TTY1
