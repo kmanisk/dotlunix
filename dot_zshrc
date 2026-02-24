@@ -290,8 +290,19 @@ fs() {
 # The selected path is always printed to stdout so you can also use it as:
 #   cd "$(ff)"   or   nvim "$(ff)"
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# ff — FZF file/folder finder
+#
+# Usage:
+#   ff           → interactive fzf menu
+#   ff <query>   → pre-filter fzf with query
+#
+# Behaviour on selection:
+#   directory → cd into it (via zoxide-aware cd)
+#   file      → open in nvim
+#   always    → path copied to clipboard
+# ---------------------------------------------------------------------------
 ff() {
-    # Requires fzf; warn if missing
     if ! command -v fzf >/dev/null; then
         echo "ff: fzf is not installed" >&2
         return 1
@@ -320,28 +331,30 @@ ff() {
             --query="$query"
     )
 
-    # Nothing selected (user pressed Esc / Ctrl-C)
     [[ -z "$selected" ]] && return 0
 
-    # Resolve to absolute path
     local abs_path
     abs_path="$(realpath -- "$selected")"
 
-    # Print path to terminal
-    echo "$abs_path"
-
-    # Copy to clipboard (Wayland wl-copy; fallback to xclip/xsel for X11)
+    # Copy to clipboard
     if command -v wl-copy >/dev/null; then
         printf '%s' "$abs_path" | wl-copy
-        echo "  Copied to clipboard (wl-copy)" >&2
+        echo "  Copied to clipboard: $abs_path" >&2
     elif command -v xclip >/dev/null; then
         printf '%s' "$abs_path" | xclip -selection clipboard
-        echo "  Copied to clipboard (xclip)" >&2
+        echo "  Copied to clipboard: $abs_path" >&2
     elif command -v xsel >/dev/null; then
         printf '%s' "$abs_path" | xsel --clipboard --input
-        echo "  Copied to clipboard (xsel)" >&2
-    else
-        echo "  No clipboard tool found (install wl-copy/xclip/xsel)" >&2
+        echo "  Copied to clipboard: $abs_path" >&2
+    fi
+
+    # Smart open
+    if [[ -d "$abs_path" ]]; then
+        echo "  → cd $abs_path" >&2
+        cd "$abs_path"
+    elif [[ -f "$abs_path" ]]; then
+        echo "  → nvim $abs_path" >&2
+        nvim "$abs_path"
     fi
 }
 
