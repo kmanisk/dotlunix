@@ -1,0 +1,11 @@
+**/cache/**
+**/Cache/**
+**/*.log
+**/*.tmp
+**/*.db
+**/*.sqlite
+**/GPUCache/**
+**/Service Worker/**
+**/session/**
+**/state/**
+dot_local/state/**

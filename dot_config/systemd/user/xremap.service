@@ -1,0 +1,16 @@
+[Unit]
+Description=xremap key remapper
+After=graphical-session.target
+Wants=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/xremap /home/manisk/.config/xremap/config.yml
+Restart=on-failure
+RestartSec=3
+Environment=DISPLAY=:0
+Environment=WAYLAND_DISPLAY=wayland-0
+Environment=XDG_RUNTIME_DIR=/run/user/%U
+
+[Install]
+WantedBy=graphical-session.target
