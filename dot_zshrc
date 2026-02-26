@@ -115,6 +115,7 @@ alias rm='rm -I'
 alias ln='ln -v'
 alias vi='nvim'
 alias vim='nvim'
+alias cat='bat'
 
 # --- Filesystem ---
 alias disk_usage='sudo btrfs filesystem usage /'
