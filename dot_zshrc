@@ -442,7 +442,7 @@ pkg_old() { expac --timefmt='%Y-%m-%d %T' '%l\t%n' | sort | head -n "${1:-20}" }
 # win edit     — edit VM XML
 # ---------------------------------------------------------------------------
 win() {
-    local vm="win10"
+    local vm="win10-2"
     local shm_file="/dev/shm/looking-glass"
     local lg_cmd="looking-glass-client -f ${shm_file} -m KEY_F6"
 
@@ -755,3 +755,4 @@ fi
 # =============================================================================
 # End of ~/.zshrc
 # =============================================================================
+# alias nvim='sudo -E nvim'
