@@ -755,4 +755,5 @@ fi
 # =============================================================================
 # End of ~/.zshrc
 # =============================================================================
-# alias nvim='sudo -E nvim'
+export EDITOR=nvim
+export XDG_DATA_DIRS="/var/lib/flatpak/exports/share:$HOME/.local/share/flatpak/exports/share:$XDG_DATA_DIRS"
