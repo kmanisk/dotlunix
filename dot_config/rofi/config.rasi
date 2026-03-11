@@ -253,7 +253,3 @@ element alternate.urgent {
     background-color: @urgent-background;
     text-color:       @urgent-foreground;
 }
-configuration {
-    modes:           "window,drun,run,ssh,blocks";
-    display-blocks:  "󰖟 Web";
-}
